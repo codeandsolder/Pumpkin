@@ -49,10 +49,7 @@ impl BlockBehaviour for CoralPlantBlock {
     }
     fn can_place_at(&self, args: CanPlaceAtArgs<'_>) -> bool {
         let support_block = args.block_accessor.get_block_state(&args.position.down());
-        if support_block.is_center_solid(BlockDirection::Up) {
-            return true;
-        }
-        false
+        support_block.is_center_solid(BlockDirection::Up)
     }
 
     fn get_state_for_neighbor_update(
