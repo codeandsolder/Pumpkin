@@ -198,11 +198,7 @@ impl SlimeEntity {
         let mut slime_rand = pumpkin_util::random::legacy_rand::LegacyRand::from_seed(slime_seed);
 
         let mut rng = rand::rng();
-        if rng.random_range(0..10) == 0 && slime_rand.next_bounded_i32(10) == 0 && pos.0.y < 40 {
-            return true;
-        }
-
-        false
+        rng.random_range(0..10) == 0 && slime_rand.next_bounded_i32(10) == 0 && pos.0.y < 40
     }
 
     // const fn get_spawn_chance(moon_phase: i64) -> f32 {

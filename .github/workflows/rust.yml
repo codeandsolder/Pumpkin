@@ -107,13 +107,17 @@ jobs:
           python-version: "3.x"
       - run: rustup update ${{ env.CI_RUST_TOOLCHAIN_VER }} && rustup default ${{ env.CI_RUST_TOOLCHAIN_VER }}
       - run: rustup component add clippy
-      - uses: Swatinem/rust-cache@v2
-        with:
-          shared-key: debug-${{ runner.os }}-${{ runner.arch }}
+      - name: Setup mandatory sccache
+        uses: codeandsolder/ci-workflows/.github/actions/setup-sccache@9d478bdbfd4acd0e1a2c015d1ff1d11688eda572 # main
+
       - name: Clippy affected packages
         run: >-
           python .github/scripts/ci_packages.py run --
           cargo clippy --all-targets --all-features
+
+      - name: Finalize mandatory sccache
+        if: always()
+        uses: codeandsolder/ci-workflows/.github/actions/finalize-sccache@9d478bdbfd4acd0e1a2c015d1ff1d11688eda572 # main
 
   clippy_release:
     name: Run release lints
@@ -126,8 +130,14 @@ jobs:
           submodules: recursive
       - run: rustup update ${{ env.CI_RUST_TOOLCHAIN_VER }} && rustup default ${{ env.CI_RUST_TOOLCHAIN_VER }}
       - run: rustup component add clippy
-      - uses: Swatinem/rust-cache@v2
+      - name: Setup mandatory sccache
+        uses: codeandsolder/ci-workflows/.github/actions/setup-sccache@9d478bdbfd4acd0e1a2c015d1ff1d11688eda572 # main
+
       - run: cargo clippy --release --all-targets --all-features
+
+      - name: Finalize mandatory sccache
+        if: always()
+        uses: codeandsolder/ci-workflows/.github/actions/finalize-sccache@9d478bdbfd4acd0e1a2c015d1ff1d11688eda572 # main
 
   check_wit:
     name: Validate `pumpkin-plugin-wit`
@@ -173,9 +183,9 @@ jobs:
           python-version: "3.x"
       - run: rustup update ${{ env.CI_RUST_TOOLCHAIN_VER }} && rustup default ${{ env.CI_RUST_TOOLCHAIN_VER }}
       - uses: taiki-e/install-action@nextest
-      - uses: Swatinem/rust-cache@v2
-        with:
-          shared-key: debug-${{ runner.os }}-${{ runner.arch }}
+      - name: Setup mandatory sccache
+        uses: codeandsolder/ci-workflows/.github/actions/setup-sccache@9d478bdbfd4acd0e1a2c015d1ff1d11688eda572 # main
+
       - name: Test affected packages
         run: >-
           python .github/scripts/ci_packages.py run --
@@ -184,6 +194,10 @@ jobs:
         run: >-
           python .github/scripts/ci_packages.py run --
           cargo test --doc --verbose
+
+      - name: Finalize mandatory sccache
+        if: always()
+        uses: codeandsolder/ci-workflows/.github/actions/finalize-sccache@9d478bdbfd4acd0e1a2c015d1ff1d11688eda572 # main
 
   gametest:
     name: GameTest and Bot Harness
@@ -201,11 +215,15 @@ jobs:
         with:
           submodules: recursive
       - run: rustup update ${{ env.CI_RUST_TOOLCHAIN_VER }} && rustup default ${{ env.CI_RUST_TOOLCHAIN_VER }}
-      - uses: Swatinem/rust-cache@v2
-        with:
-          shared-key: debug-${{ runner.os }}-${{ runner.arch }}
+      - name: Setup mandatory sccache
+        uses: codeandsolder/ci-workflows/.github/actions/setup-sccache@9d478bdbfd4acd0e1a2c015d1ff1d11688eda572 # main
+
       - name: Run pumpkin-tester (headless bots + Mojang GameTests)
         run: cargo run -p pumpkin-tester
+
+      - name: Finalize mandatory sccache
+        if: always()
+        uses: codeandsolder/ci-workflows/.github/actions/finalize-sccache@9d478bdbfd4acd0e1a2c015d1ff1d11688eda572 # main
 
   test_android:
     name: Test on Android AArch64
@@ -227,9 +245,9 @@ jobs:
       - uses: nttld/setup-ndk@v1
         with:
           ndk-version: r27c
-      - uses: Swatinem/rust-cache@v2
-        with:
-          shared-key: android-debug-${{ runner.os }}-${{ runner.arch }}
+      - name: Setup mandatory sccache
+        uses: codeandsolder/ci-workflows/.github/actions/setup-sccache@9d478bdbfd4acd0e1a2c015d1ff1d11688eda572 # main
+
       - run: cargo install cargo-ndk
       - name: Enable KVM
         run: |
@@ -248,6 +266,10 @@ jobs:
           force-avd-creation: false
           emulator-options: -no-snapshot-load -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
           script: cargo ndk-test -t arm64-v8a
+
+      - name: Finalize mandatory sccache
+        if: always()
+        uses: codeandsolder/ci-workflows/.github/actions/finalize-sccache@9d478bdbfd4acd0e1a2c015d1ff1d11688eda572 # main
 
   build_pull_request:
     name: Build affected packages
@@ -282,13 +304,17 @@ jobs:
         with:
           python-version: "3.x"
       - run: rustup update ${{ env.CI_RUST_TOOLCHAIN_VER }} && rustup default ${{ env.CI_RUST_TOOLCHAIN_VER }}
-      - uses: Swatinem/rust-cache@v2
-        with:
-          shared-key: debug-${{ runner.os }}-${{ runner.arch }}
+      - name: Setup mandatory sccache
+        uses: codeandsolder/ci-workflows/.github/actions/setup-sccache@9d478bdbfd4acd0e1a2c015d1ff1d11688eda572 # main
+
       - name: Build affected packages
         run: >-
           python .github/scripts/ci_packages.py run --
           cargo build --verbose
+
+      - name: Finalize mandatory sccache
+        if: always()
+        uses: codeandsolder/ci-workflows/.github/actions/finalize-sccache@9d478bdbfd4acd0e1a2c015d1ff1d11688eda572 # main
 
   build_android_pull_request:
     name: Build affected packages for Android AArch64
@@ -315,9 +341,9 @@ jobs:
       - uses: nttld/setup-ndk@v1
         with:
           ndk-version: r27c
-      - uses: Swatinem/rust-cache@v2
-        with:
-          shared-key: android-debug-${{ runner.os }}-${{ runner.arch }}
+      - name: Setup mandatory sccache
+        uses: codeandsolder/ci-workflows/.github/actions/setup-sccache@9d478bdbfd4acd0e1a2c015d1ff1d11688eda572 # main
+
       - run: cargo install cargo-ndk
       - name: Build affected packages
         env:
@@ -325,6 +351,10 @@ jobs:
         run: >-
           python .github/scripts/ci_packages.py run --
           cargo ndk -t arm64-v8a build --locked
+
+      - name: Finalize mandatory sccache
+        if: always()
+        uses: codeandsolder/ci-workflows/.github/actions/finalize-sccache@9d478bdbfd4acd0e1a2c015d1ff1d11688eda572 # main
 
   build_release:
     name: Build project in release
@@ -361,7 +391,9 @@ jobs:
         with:
           submodules: recursive
       - run: rustup update ${{ env.CI_RUST_TOOLCHAIN_VER }} && rustup default ${{ env.CI_RUST_TOOLCHAIN_VER }}
-      - uses: Swatinem/rust-cache@v2
+      - name: Setup mandatory sccache
+        uses: codeandsolder/ci-workflows/.github/actions/setup-sccache@9d478bdbfd4acd0e1a2c015d1ff1d11688eda572 # main
+
       - name: Build release
         run: cargo build --verbose --release
       - name: Prepare artifact
@@ -376,6 +408,10 @@ jobs:
           name: ${{ matrix.asset }}
           compression-level: 9
           path: dist/${{ matrix.asset }}
+
+      - name: Finalize mandatory sccache
+        if: always()
+        uses: codeandsolder/ci-workflows/.github/actions/finalize-sccache@9d478bdbfd4acd0e1a2c015d1ff1d11688eda572 # main
 
   build_release_musl:
     name: Build project in release with musl
@@ -403,7 +439,9 @@ jobs:
           submodules: recursive
       - run: rustup update ${{ env.CI_RUST_TOOLCHAIN_VER }} && rustup default ${{ env.CI_RUST_TOOLCHAIN_VER }}
       - run: rustup target add ${{ matrix.target }}
-      - uses: Swatinem/rust-cache@v2
+      - name: Setup mandatory sccache
+        uses: codeandsolder/ci-workflows/.github/actions/setup-sccache@9d478bdbfd4acd0e1a2c015d1ff1d11688eda572 # main
+
       - name: Install musl-tools
         run: |
           sudo apt-get update
@@ -419,6 +457,10 @@ jobs:
           name: ${{ matrix.asset }}
           compression-level: 9
           path: dist/${{ matrix.asset }}
+
+      - name: Finalize mandatory sccache
+        if: always()
+        uses: codeandsolder/ci-workflows/.github/actions/finalize-sccache@9d478bdbfd4acd0e1a2c015d1ff1d11688eda572 # main
 
   build_android_release:
     name: Build project in release for Android AArch64
@@ -437,7 +479,9 @@ jobs:
       - uses: nttld/setup-ndk@v1
         with:
           ndk-version: r27c
-      - uses: Swatinem/rust-cache@v2
+      - name: Setup mandatory sccache
+        uses: codeandsolder/ci-workflows/.github/actions/setup-sccache@9d478bdbfd4acd0e1a2c015d1ff1d11688eda572 # main
+
       - run: cargo install cargo-ndk
       - name: Build release with cargo ndk
         env:
@@ -452,6 +496,10 @@ jobs:
           name: pumpkin-aarch64-android
           compression-level: 9
           path: dist/pumpkin-aarch64-android
+
+      - name: Finalize mandatory sccache
+        if: always()
+        uses: codeandsolder/ci-workflows/.github/actions/finalize-sccache@9d478bdbfd4acd0e1a2c015d1ff1d11688eda572 # main
 
   draft_canary_release:
     name: Update canary release
