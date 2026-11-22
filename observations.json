@@ -1,5 +1,10 @@
 {
   "source": "Pumpkin-MC/Pumpkin:master",
-  "lastAttempt": 1795373422134,
-  "observations": []
+  "lastAttempt": 1795373426064,
+  "observations": [
+    {
+      "sha": "5e4feec86f86e01d474ee68f2596539d23436b8d",
+      "firstObserved": 1795373426064
+    }
+  ]
 }
