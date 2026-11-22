@@ -68,9 +68,9 @@ jobs:
           rustup target add ${{ matrix.target }}
           sudo apt-get update
           sudo apt-get install -y musl-tools
-      - uses: Swatinem/rust-cache@v2
-        with:
-          key: ${{ matrix.asset }}
+      - name: Setup mandatory sccache
+        uses: codeandsolder/ci-workflows/.github/actions/setup-sccache@9d478bdbfd4acd0e1a2c015d1ff1d11688eda572 # main
+
       - name: Build release
         shell: bash
         run: cargo build --verbose --release ${{ matrix.target && format('--target {0}', matrix.target) || '' }}
@@ -89,6 +89,10 @@ jobs:
           compression-level: 9
           path: dist/${{ matrix.asset }}
 
+      - name: Finalize mandatory sccache
+        if: always()
+        uses: codeandsolder/ci-workflows/.github/actions/finalize-sccache@9d478bdbfd4acd0e1a2c015d1ff1d11688eda572 # main
+
   build_android:
     name: Build pumpkin-aarch64-android
     needs: check
@@ -104,9 +108,9 @@ jobs:
       - uses: nttld/setup-ndk@v1
         with:
           ndk-version: r27c
-      - uses: Swatinem/rust-cache@v2
-        with:
-          key: android
+      - name: Setup mandatory sccache
+        uses: codeandsolder/ci-workflows/.github/actions/setup-sccache@9d478bdbfd4acd0e1a2c015d1ff1d11688eda572 # main
+
       - run: cargo install cargo-ndk
       - name: Build release with cargo ndk
         env:
@@ -121,6 +125,10 @@ jobs:
           name: pumpkin-aarch64-android
           compression-level: 9
           path: dist/pumpkin-aarch64-android
+
+      - name: Finalize mandatory sccache
+        if: always()
+        uses: codeandsolder/ci-workflows/.github/actions/finalize-sccache@9d478bdbfd4acd0e1a2c015d1ff1d11688eda572 # main
 
   draft_release:
     name: Draft nightly release

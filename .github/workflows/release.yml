@@ -41,7 +41,8 @@ jobs:
           submodules: recursive
 
       - run: rustup update ${{ matrix.toolchain }} && rustup default ${{ matrix.toolchain }}
-      - uses: Swatinem/rust-cache@v2
+      - name: Setup mandatory sccache
+        uses: codeandsolder/ci-workflows/.github/actions/setup-sccache@9d478bdbfd4acd0e1a2c015d1ff1d11688eda572 # main
 
       - name: Install musl-tools (Linux only)
         if: runner.os == 'Linux'
@@ -94,6 +95,10 @@ jobs:
           name: pumpkin-${{ runner.arch }}-${{ runner.os }}
           compression-level: 9
           path: dist/pumpkin-*
+
+      - name: Finalize mandatory sccache
+        if: always()
+        uses: codeandsolder/ci-workflows/.github/actions/finalize-sccache@9d478bdbfd4acd0e1a2c015d1ff1d11688eda572 # main
 
   sign_windows_release:
     name: Sign Windows release
@@ -151,9 +156,11 @@ jobs:
       - uses: nttld/setup-ndk@v1
         with:
           ndk-version: r27c
+      - name: Setup mandatory sccache
+        uses: codeandsolder/ci-workflows/.github/actions/setup-sccache@9d478bdbfd4acd0e1a2c015d1ff1d11688eda572 # main
+
       - name: Install cargo-ndk
         run: cargo install cargo-ndk
-      - uses: Swatinem/rust-cache@v2
       - name: Build Release with cargo ndk
         env:
           CARGO_NDK_PLATFORM: 24
@@ -169,6 +176,10 @@ jobs:
           name: pumpkin-aarch64-android
           compression-level: 9
           path: dist/pumpkin-aarch64-android
+
+      - name: Finalize mandatory sccache
+        if: always()
+        uses: codeandsolder/ci-workflows/.github/actions/finalize-sccache@9d478bdbfd4acd0e1a2c015d1ff1d11688eda572 # main
 
   publish_release:
     name: Publish GitHub Release
