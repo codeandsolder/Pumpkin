@@ -4,6 +4,15 @@ on:
   schedule:
     - cron: "27 6 * * *"
   workflow_dispatch:
+  pull_request:
+    branches: [master]
+    paths:
+      - .github/workflows/track-upstream.yml
+      - .github/scripts/validate-upstream.sh
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 permissions:
   contents: write
@@ -11,12 +20,13 @@ permissions:
 
 jobs:
   sync:
-    uses: codeandsolder/ci-workflows/.github/workflows/upstream-tracking.yml@f1499fe94abf45faacae7992670e5163109225f0 # main
+    uses: codeandsolder/ci-workflows/.github/workflows/upstream-tracking.yml@71b760fc0995286b9b4581533e5729b47e1a82f4 # main
     with:
       upstream-repository: Pumpkin-MC/Pumpkin
       upstream-branch: master
       target-branch: master
       strategy: merge
+      workflow-policy: preserve
       validation-script: .github/scripts/validate-upstream.sh
       rust-toolchain: stable
       timeout-minutes: 120
