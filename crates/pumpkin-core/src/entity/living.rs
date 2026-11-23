@@ -2515,7 +2515,7 @@ impl LivingEntity {
                             None,
                         );
                     }
-                    equipment_updates.push((slot.clone(), stack.clone()));
+                    equipment_updates.push((slot, stack.clone()));
                     if let Some(player) = caller.get_player() {
                         player.enqueue_slot_set_packet(&CSetPlayerInventory::new(
                             (slot_index as i32).into(),
