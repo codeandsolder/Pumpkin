@@ -286,3 +286,5 @@ webpki-root-certs = { version = "1.0.9", default-features = false }
 rustls = { version = "0.23", default-features = false, features = ["ring", "std", "tls12", "logging"] }
 zip = { version = "9.0", default-features = false, features = ["deflate-flate2"] }
 
+[patch.crates-io]
+zlib-rs = { git = "https://github.com/codeandsolder/zlib-rs-fast.git", rev = "3ffe503ac2261d625a1fa9a78999fedeb0cdfc92" }
