@@ -53,7 +53,7 @@ jobs:
           submodules: recursive
       - name: Select affected packages
         id: plan
-        uses: codeandsolder/ci-workflows/.github/actions/cargo-affected@d803c5346e2fc3526ff1eb52d7dc3f9a4e031206
+        uses: codeandsolder/ci-workflows/.github/actions/cargo-affected@135bd114e22d143b5ee2163580aad479b9970a5a
         with:
           mode: plan
           event: ${{ github.event_name }}
@@ -100,7 +100,7 @@ jobs:
         with:
           shared-key: debug-${{ runner.os }}-${{ runner.arch }}
       - name: Clippy affected packages
-        uses: codeandsolder/ci-workflows/.github/actions/cargo-affected@d803c5346e2fc3526ff1eb52d7dc3f9a4e031206
+        uses: codeandsolder/ci-workflows/.github/actions/cargo-affected@135bd114e22d143b5ee2163580aad479b9970a5a
         with:
           mode: run
           packages: ${{ needs.prepare.outputs.affected_packages }}
@@ -163,13 +163,13 @@ jobs:
         with:
           shared-key: debug-${{ runner.os }}-${{ runner.arch }}
       - name: Test affected packages
-        uses: codeandsolder/ci-workflows/.github/actions/cargo-affected@d803c5346e2fc3526ff1eb52d7dc3f9a4e031206
+        uses: codeandsolder/ci-workflows/.github/actions/cargo-affected@135bd114e22d143b5ee2163580aad479b9970a5a
         with:
           mode: run
           packages: ${{ needs.prepare.outputs.affected_packages }}
           command: '["cargo","nextest","run","--verbose","--no-tests=pass"]'
       - name: Test affected package documentation
-        uses: codeandsolder/ci-workflows/.github/actions/cargo-affected@d803c5346e2fc3526ff1eb52d7dc3f9a4e031206
+        uses: codeandsolder/ci-workflows/.github/actions/cargo-affected@135bd114e22d143b5ee2163580aad479b9970a5a
         with:
           mode: run
           packages: ${{ needs.prepare.outputs.affected_packages }}
@@ -271,7 +271,7 @@ jobs:
         with:
           shared-key: debug-${{ runner.os }}-${{ runner.arch }}
       - name: Build affected packages
-        uses: codeandsolder/ci-workflows/.github/actions/cargo-affected@d803c5346e2fc3526ff1eb52d7dc3f9a4e031206
+        uses: codeandsolder/ci-workflows/.github/actions/cargo-affected@135bd114e22d143b5ee2163580aad479b9970a5a
         with:
           mode: run
           packages: ${{ needs.prepare.outputs.affected_packages }}
@@ -302,7 +302,7 @@ jobs:
           shared-key: android-debug-${{ runner.os }}-${{ runner.arch }}
       - run: cargo install cargo-ndk
       - name: Build affected packages
-        uses: codeandsolder/ci-workflows/.github/actions/cargo-affected@d803c5346e2fc3526ff1eb52d7dc3f9a4e031206
+        uses: codeandsolder/ci-workflows/.github/actions/cargo-affected@135bd114e22d143b5ee2163580aad479b9970a5a
         env:
           CARGO_NDK_PLATFORM: 24
         with:
