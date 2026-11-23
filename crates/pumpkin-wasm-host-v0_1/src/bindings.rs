@@ -1,3 +1,10 @@
+// The bindgen macro generates an uninhabited sentinel enum; it reflects a
+// WIT component type and cannot be replaced with ! without changing the ABI.
+#![expect(
+    clippy::empty_enums,
+    reason = "Wasmtime bindgen emits a correct uninhabited type for WIT component bindings"
+)]
+
 use wasmtime::component::bindgen;
 
 bindgen!({
