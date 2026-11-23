@@ -1,0 +1,76 @@
+{
+  "full_paths": [
+    ".github/cargo-affected.json",
+    ".github/workflows/rust.yml",
+    ".gitmodules",
+    "Cargo.lock",
+    "Cargo.toml",
+    "rust-toolchain.toml"
+  ],
+  "full_prefixes": [".cargo"],
+  "ignored_paths": [
+    ".github/dependabot.yml",
+    ".github/FUNDING.yml",
+    ".github/PULL_REQUEST_TEMPLATE.md",
+    ".github/workflows/nix.yml",
+    ".github/workflows/docker.yml",
+    ".github/workflows/nightly.yml",
+    ".github/workflows/release.yml",
+    ".github/workflows/reviewers.yml",
+    ".github/workflows/sync-wit.yml",
+    ".github/workflows/typos.yml",
+    ".dockerignore",
+    ".editorconfig",
+    ".envrc",
+    ".gitignore",
+    "CODE_OF_CONDUCT.md",
+    "CONTRIBUTING.md",
+    "Dockerfile",
+    "LICENSE",
+    "README.md",
+    "SECURITY.md",
+    "assets/NOTICE.md",
+    "assets/bedrock/README.md",
+    "default.nix",
+    "docker-compose.yml",
+    "egg-pumpkin.json",
+    "flake.lock",
+    "flake.nix",
+    "shell.nix",
+    "typos.toml"
+  ],
+  "ignored_prefixes": [
+    ".github/ISSUE_TEMPLATE",
+    ".devcontainer",
+    "docs"
+  ],
+  "triggers": [
+    {
+      "flag": "should_check_wit",
+      "prefixes": ["crates/pumpkin-plugin-wit"],
+      "packages": [
+        "pumpkin-plugin-api",
+        "pumpkin-wasm-host-v0_1",
+        "pumpkin-wasm-host-v0_2"
+      ]
+    }
+  ],
+  "matrices": {
+    "partial": {
+      "include": [
+        {"name": "Linux x64", "os": "ubuntu-latest"},
+        {"name": "Windows x64", "os": "windows-latest"},
+        {"name": "macOS", "os": "macos-latest"}
+      ]
+    },
+    "full": {
+      "include": [
+        {"name": "Linux x64", "os": "ubuntu-latest"},
+        {"name": "Linux ARM64", "os": "ubuntu-26.04-arm"},
+        {"name": "Windows x64", "os": "windows-latest"},
+        {"name": "Windows ARM64", "os": "windows-11-arm"},
+        {"name": "macOS", "os": "macos-latest"}
+      ]
+    }
+  }
+}
