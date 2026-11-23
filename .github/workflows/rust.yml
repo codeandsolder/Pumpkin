@@ -44,27 +44,21 @@ jobs:
       affected_packages: ${{ steps.plan.outputs.affected_packages }}
       has_code: ${{ steps.plan.outputs.has_code }}
       run_full: ${{ steps.plan.outputs.run_full }}
-      should_check_wit: ${{ steps.plan.outputs.should_check_wit }}
+      should_check_wit: ${{ fromJSON(steps.plan.outputs.extra_flags).should_check_wit }}
       test_matrix: ${{ steps.plan.outputs.test_matrix }}
     steps:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
           submodules: recursive
-      - uses: actions/setup-python@v6
-        with:
-          python-version: "3.x"
       - name: Select affected packages
         id: plan
-        env:
-          CI_BASE_SHA: ${{ github.event.pull_request.base.sha }}
-          CI_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
-        run: >-
-          python .github/scripts/ci_packages.py plan
-          --event "${{ github.event_name }}"
-          --base "$CI_BASE_SHA"
-          --head "$CI_HEAD_SHA"
-          --output "$GITHUB_OUTPUT"
+        uses: codeandsolder/ci-workflows/.github/actions/cargo-affected@2718587e28dc84f6fe888126571e69c8124907be
+        with:
+          mode: plan
+          event: ${{ github.event_name }}
+          base: ${{ github.event.pull_request.base.sha }}
+          head: ${{ github.event.pull_request.head.sha || github.sha }}
 
   format:
     name: Check formatting
@@ -96,24 +90,21 @@ jobs:
     needs: prepare
     if: needs.prepare.outputs.has_code == 'true'
     runs-on: ubuntu-latest
-    env:
-      CI_AFFECTED_PACKAGES: ${{ needs.prepare.outputs.affected_packages }}
     steps:
       - uses: actions/checkout@v7
         with:
           submodules: recursive
-      - uses: actions/setup-python@v6
-        with:
-          python-version: "3.x"
       - run: rustup update ${{ env.CI_RUST_TOOLCHAIN_VER }} && rustup default ${{ env.CI_RUST_TOOLCHAIN_VER }}
       - run: rustup component add clippy
       - uses: Swatinem/rust-cache@v2
         with:
           shared-key: debug-${{ runner.os }}-${{ runner.arch }}
       - name: Clippy affected packages
-        run: >-
-          python .github/scripts/ci_packages.py run --
-          cargo clippy --all-targets --all-features
+        uses: codeandsolder/ci-workflows/.github/actions/cargo-affected@2718587e28dc84f6fe888126571e69c8124907be
+        with:
+          mode: run
+          packages: ${{ needs.prepare.outputs.affected_packages }}
+          command: '["cargo","clippy","--all-targets","--all-features"]'
 
   clippy_release:
     name: Run release lints
@@ -162,28 +153,27 @@ jobs:
     strategy:
       fail-fast: false
       matrix: ${{ fromJSON(needs.prepare.outputs.test_matrix) }}
-    env:
-      CI_AFFECTED_PACKAGES: ${{ needs.prepare.outputs.affected_packages }}
     steps:
       - uses: actions/checkout@v7
         with:
           submodules: recursive
-      - uses: actions/setup-python@v6
-        with:
-          python-version: "3.x"
       - run: rustup update ${{ env.CI_RUST_TOOLCHAIN_VER }} && rustup default ${{ env.CI_RUST_TOOLCHAIN_VER }}
       - uses: taiki-e/install-action@nextest
       - uses: Swatinem/rust-cache@v2
         with:
           shared-key: debug-${{ runner.os }}-${{ runner.arch }}
       - name: Test affected packages
-        run: >-
-          python .github/scripts/ci_packages.py run --
-          cargo nextest run --verbose --no-tests=pass
+        uses: codeandsolder/ci-workflows/.github/actions/cargo-affected@2718587e28dc84f6fe888126571e69c8124907be
+        with:
+          mode: run
+          packages: ${{ needs.prepare.outputs.affected_packages }}
+          command: '["cargo","nextest","run","--verbose","--no-tests=pass"]'
       - name: Test affected package documentation
-        run: >-
-          python .github/scripts/ci_packages.py run --
-          cargo test --doc --verbose
+        uses: codeandsolder/ci-workflows/.github/actions/cargo-affected@2718587e28dc84f6fe888126571e69c8124907be
+        with:
+          mode: run
+          packages: ${{ needs.prepare.outputs.affected_packages }}
+          command: '["cargo","test","--doc","--verbose"]'
 
   gametest:
     name: GameTest and Bot Harness
@@ -272,23 +262,20 @@ jobs:
             os: windows-11-arm
           - name: macOS
             os: macos-latest
-    env:
-      CI_AFFECTED_PACKAGES: ${{ needs.prepare.outputs.affected_packages }}
     steps:
       - uses: actions/checkout@v7
         with:
           submodules: recursive
-      - uses: actions/setup-python@v6
-        with:
-          python-version: "3.x"
       - run: rustup update ${{ env.CI_RUST_TOOLCHAIN_VER }} && rustup default ${{ env.CI_RUST_TOOLCHAIN_VER }}
       - uses: Swatinem/rust-cache@v2
         with:
           shared-key: debug-${{ runner.os }}-${{ runner.arch }}
       - name: Build affected packages
-        run: >-
-          python .github/scripts/ci_packages.py run --
-          cargo build --verbose
+        uses: codeandsolder/ci-workflows/.github/actions/cargo-affected@2718587e28dc84f6fe888126571e69c8124907be
+        with:
+          mode: run
+          packages: ${{ needs.prepare.outputs.affected_packages }}
+          command: '["cargo","build","--verbose"]'
 
   build_android_pull_request:
     name: Build affected packages for Android AArch64
@@ -301,15 +288,10 @@ jobs:
       (needs.test_android.result == 'success' ||
       needs.test_android.result == 'skipped')
     runs-on: ubuntu-latest
-    env:
-      CI_AFFECTED_PACKAGES: ${{ needs.prepare.outputs.affected_packages }}
     steps:
       - uses: actions/checkout@v7
         with:
           submodules: recursive
-      - uses: actions/setup-python@v6
-        with:
-          python-version: "3.x"
       - run: rustup update ${{ env.CI_RUST_TOOLCHAIN_VER }} && rustup default ${{ env.CI_RUST_TOOLCHAIN_VER }}
       - run: rustup target add aarch64-linux-android
       - uses: nttld/setup-ndk@v1
@@ -320,11 +302,13 @@ jobs:
           shared-key: android-debug-${{ runner.os }}-${{ runner.arch }}
       - run: cargo install cargo-ndk
       - name: Build affected packages
+        uses: codeandsolder/ci-workflows/.github/actions/cargo-affected@2718587e28dc84f6fe888126571e69c8124907be
         env:
           CARGO_NDK_PLATFORM: 24
-        run: >-
-          python .github/scripts/ci_packages.py run --
-          cargo ndk -t arm64-v8a build --locked
+        with:
+          mode: run
+          packages: ${{ needs.prepare.outputs.affected_packages }}
+          command: '["cargo","ndk","-t","arm64-v8a","build","--locked"]'
 
   build_release:
     name: Build project in release
